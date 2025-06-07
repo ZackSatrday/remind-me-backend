@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reminder App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #e0eafc, #cfdef3);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 360px;
+            width: 90%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 24px 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 32px rgba(0,0,0,0.10);
+        }
+        h2 {
+            text-align: center;
+            color: #2d3a4a;
+            margin: 0 0 16px 0;
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+        }
+        label {
+            margin-top: 8px;
+            color: #3a4a5d;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: block;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 10px;
+            margin-top: 4px;
+            border: 1.5px solid #d1d9e6;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #f8fafc;
+            transition: border 0.2s;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 70px;
+            resize: vertical;
+        }
+        input:focus, select:focus, textarea:focus {
+            border: 1.5px solid #007bff;
+            outline: none;
+            background: #fff;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 16px;
+            background: linear-gradient(90deg, #007bff 60%, #4f8cff 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #0056b3 60%, #357ae8 100%);
+        }
+        .message {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                padding: 16px;
+            }
+            h2 {
+                font-size: 1.2rem;
+            }
+            input, select, textarea, button {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Create a Reminder</h2>
+        <form id="reminderForm">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="time">Time</label>
+            <input type="time" id="time" name="time" required>
+
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="3" required></textarea>
+
+            <label for="method">Method</label>
+            <select id="method" name="method" required>
+                <option value="">Select Method</option>
+                <option value="sms">SMS</option>
+                <option value="email">Email</option>
+            </select>
+
+            <button type="submit">Create Reminder</button>
+        </form>
+        <div class="message" id="responseMessage"></div>
+    </div>
+    <script>
+        document.getElementById('reminderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const message = document.getElementById('message').value;
+            const method = document.getElementById('method').value;
+            const responseMessage = document.getElementById('responseMessage');
+            responseMessage.textContent = '';
+            try {
+                const res = await fetch('/api/reminder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date, time, message, method })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    responseMessage.style.color = 'green';
+                    responseMessage.textContent = 'Reminder created successfully!';
+                    document.getElementById('reminderForm').reset();
+                } else {
+                    responseMessage.style.color = 'red';
+                    responseMessage.textContent = data.error || 'Failed to create reminder.';
+                }
+            } catch (err) {
+                responseMessage.style.color = 'red';
+                responseMessage.textContent = 'Error connecting to server.';
+            }
+        });
+    </script>
+</body>
+</html>
